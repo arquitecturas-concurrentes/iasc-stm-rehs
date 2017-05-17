@@ -1,3 +1,10 @@
+------------------------------------------------------------
+-- IO Helpers
+-- This modules declares a helper functions to be able to
+-- execute table transactions within IO.
+-- Notice that all functions in this module return IO's
+------------------------------------------------------------
+
 module Rehs.IO (
     newTableIO,
     updateAndReadSlotIO)where

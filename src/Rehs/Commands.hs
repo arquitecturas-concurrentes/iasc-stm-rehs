@@ -1,3 +1,10 @@
+------------------------------------------------------------
+-- Command parsing functions
+-- This module declares functions for parsing the user input
+-- and converting it into Slot Transaction - functions that
+-- return an STM ().
+------------------------------------------------------------
+
 module Rehs.Commands (
     parseSlotTransactionLine) where
 

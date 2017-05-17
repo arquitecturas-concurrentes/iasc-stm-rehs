@@ -1,3 +1,8 @@
+------------------------------------------------------------
+-- Nothing interesting here. Just the app starting point.
+------------------------------------------------------------
+
+
 module Main where
 
 import qualified Rehs.Server as RehsServer
