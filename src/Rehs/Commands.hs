@@ -9,7 +9,7 @@ module Rehs.Commands (
     parseTransactionLine) where
 
 import Data.List.Split (splitOn)
-import Rehs (SchemaTransaction, setSchema, setTransaction, clearTransaction, readTransaction)
+import Rehs as Rehs
 
 type Command = [String]
 
@@ -17,7 +17,8 @@ parseTransactionLine :: String -> SchemaTransaction
 parseTransactionLine = parseSlotTransactionCommand . splitOn ":"
 
 parseSlotTransactionCommand :: Command -> SchemaTransaction
-parseSlotTransactionCommand ("schema":keys)     = Rehs.setSchema
+parseSlotTransactionCommand ("schema":keys)     = Rehs.setSchema keys
 parseSlotTransactionCommand ["set", key, value] = Rehs.setTransaction key value
 parseSlotTransactionCommand ["read", key]       = Rehs.readTransaction key
-parseSlotTransactionCommand ["clear"]           = Rehs.clearTransaction
+parseSlotTransactionCommand ["clear", key]      = Rehs.clearTransaction key
+parseSlotTransactionCommand ["clear_all"]        = Rehs.clearAllTransaction
