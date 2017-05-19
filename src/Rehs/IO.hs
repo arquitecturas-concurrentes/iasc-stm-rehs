@@ -16,4 +16,4 @@ newSchemaIO :: IO Schema
 newSchemaIO = atomically newSchema
 
 performAndReadTransactionIO :: SchemaTransaction -> Schema -> IO String
-performAndReadTransactionIO transaction = atomically . updateAndReadSlot transaction
+performAndReadTransactionIO transaction = atomically . transaction

@@ -21,4 +21,6 @@ parseSlotTransactionCommand ("schema":keys)     = Rehs.setSchema keys
 parseSlotTransactionCommand ["set", key, value] = Rehs.setTransaction key value
 parseSlotTransactionCommand ["read", key]       = Rehs.readTransaction key
 parseSlotTransactionCommand ["clear", key]      = Rehs.clearTransaction key
-parseSlotTransactionCommand ["clear_all"]        = Rehs.clearAllTransaction
+parseSlotTransactionCommand ["clear_all"]       = Rehs.clearAllTransaction
+parseSlotTransactionCommand ["reverse", key]    = Rehs.reverseTransaction key
+parseSlotTransactionCommand ["upcase", key]     = Rehs.upcaseTransaction key

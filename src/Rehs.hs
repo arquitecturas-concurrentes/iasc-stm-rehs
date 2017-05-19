@@ -8,24 +8,23 @@ module Rehs (
    Schema,
    SchemaTransaction,
    newSchema,
-   updateAndReadSlot,
    setSchema,
+   readTransaction,
+   upcaseTransaction,
+   reverseTransaction,
    setTransaction,
    clearTransaction,
-   clearAllTransaction,
-   readTransaction) where
+   clearAllTransaction) where
 
 import Control.Concurrent.STM
 import Data.Map.Strict as Map
+import Data.Char
 
 type Schema = TVar (Map String String)
 type SchemaTransaction = Schema -> STM String
 
 newSchema :: STM Schema
 newSchema = newTVar Map.empty
-
-updateAndReadSlot :: SchemaTransaction -> Schema -> STM String
-updateAndReadSlot transaction table = transaction table
 
 setSchema :: [String] -> SchemaTransaction
 setSchema keys = \schema -> do 
@@ -40,6 +39,16 @@ readTransaction :: String -> SchemaTransaction
 readTransaction key = \schema -> do
     map <- readTVar schema    
     return $ Map.findWithDefault "" key map
+
+reverseTransaction :: String -> SchemaTransaction
+reverseTransaction key = \schema -> do
+    value <- readTransaction key schema
+    return $ reverse value
+
+upcaseTransaction :: String -> SchemaTransaction
+upcaseTransaction key = \schema -> do
+    value <- readTransaction key schema
+    return $ Prelude.map toUpper value
 
 clearTransaction :: String -> SchemaTransaction
 clearTransaction key = setTransaction key ""
