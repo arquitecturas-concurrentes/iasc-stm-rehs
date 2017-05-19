@@ -13,22 +13,22 @@ import Text.Printf        (printf)
 import System.IO          (Handle(..), BufferMode(..),
                            hGetLine, hClose, hPutStrLn, hSetNewlineMode, universalNewlineMode, hSetBuffering)
 
-import Rehs (Table)
-import Rehs.IO (newTableIO, updateAndReadSlotIO)
-import Rehs.Commands (parseSlotTransactionLine)
+import Rehs (Schema)
+import Rehs.IO (newSchemaIO, performAndReadTransactionIO)
+import Rehs.Commands (parseTransactionLine)
 
 startServer :: Int -> IO ()
 startServer port = withSocketsDo $ do
-    table <- newTableIO
+    schema <- newSchemaIO
 
     serverSocket <- listenServerPort port
-    forever $ acceptClient serverSocket table
+    forever $ acceptClient serverSocket schema
 
-acceptClient :: Socket -> Table ->  IO ()
-acceptClient serverSocket table = do
+acceptClient :: Socket -> Schema ->  IO ()
+acceptClient serverSocket schema = do
     (handle, host, port') <- accept serverSocket
     _ <- printf "[Server] Accepted connection from %s\n" host
-    void $ forkFinally (handleClient handle table) (\_ -> closeClient handle host)
+    void $ forkFinally (handleClient handle schema) (\_ -> closeClient handle host)
 
 closeClient :: Handle -> String -> IO ()
 closeClient handle host = do
@@ -41,18 +41,18 @@ listenServerPort port = do
     printf "[Server] Serving on port %d\n" port
     return socket
 
-handleClient :: Handle -> Table -> IO ()
-handleClient handle table = do
+handleClient :: Handle -> Schema -> IO ()
+handleClient handle schema = do
     hSetNewlineMode handle universalNewlineMode
     hSetBuffering handle LineBuffering
-    forever $ handleCommands handle table
+    forever $ handleCommands handle schema
 
-handleCommands :: Handle -> Table -> IO ()
-handleCommands handle table = do
+handleCommands :: Handle -> Schema -> IO ()
+handleCommands handle schema = do
     line <- hGetLine handle
 
-    let transaction = parseSlotTransactionLine line
+    let transaction = parseTransactionLine line
 
-    updatedSlot <- updateAndReadSlotIO transaction table
+    updatedSlot <- performAndReadTransactionIO transaction schema
     hPutStrLn handle updatedSlot
 

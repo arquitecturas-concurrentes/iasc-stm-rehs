@@ -6,14 +6,14 @@
 ------------------------------------------------------------
 
 module Rehs.IO (
-    newTableIO,
-    updateAndReadSlotIO)where
+    newSchemaIO,
+    performAndReadTransactionIO)where
 
 import Rehs
 import Control.Concurrent.STM
 
-newTableIO :: IO Table
-newTableIO = atomically newTable
+newSchemaIO :: IO Schema
+newSchemaIO = atomically newSchema
 
-updateAndReadSlotIO :: SlotTransaction -> Table -> IO String
-updateAndReadSlotIO transaction = atomically . updateAndReadSlot transaction
+performAndReadTransactionIO :: SchemaTransaction -> Schema -> IO String
+performAndReadTransactionIO transaction = atomically . updateAndReadSlot transaction

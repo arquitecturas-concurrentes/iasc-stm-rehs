@@ -5,30 +5,39 @@
 ------------------------------------------------------------
 
 module Rehs (
-   Table,
-   SlotTransaction,
-   newTable,
+   Schema,
+   SchemaTransaction,
+   newSchema,
    updateAndReadSlot,
+   setSchema,
    setTransaction,
    clearTransaction,
    readTransaction) where
 
 import Control.Concurrent.STM
+import Data.Map.Strict as Map
 
-type Table = TVar String
-type SlotTransaction = Table -> STM ()
+type Schema = TVar (Map String String)
+type SchemaTransaction = Schema -> STM String
 
-newTable :: STM Table
-newTable =  newTVar ""
+newSchema :: STM Schema
+newSchema = newTVar Map.empty
 
-updateAndReadSlot :: SlotTransaction -> Table -> STM String
-updateAndReadSlot transaction table = transaction table >> readTVar table
 
-setTransaction :: String -> SlotTransaction
-setTransaction value = \table -> modifyTVar table (\_ -> value)
+updateAndReadSlot :: SchemaTransaction -> Schema -> STM String
+updateAndReadSlot transaction table = transaction table
 
-clearTransaction :: SlotTransaction
-clearTransaction  = \table -> writeTVar table ""
+setSchema :: [String] -> SchemaTransaction
+setSchema keys = \schema -> writeTVar schema . Map.fromList . zip keys . repeat $ "" >> return "newSchema"
 
-readTransaction :: SlotTransaction
-readTransaction = \table -> return ()
+setTransaction :: String -> String -> SchemaTransaction
+setTransaction key value = \schema -> modifyTVar schema (\map -> Map.insert key value map) >> return key
+
+readTransaction :: String -> SchemaTransaction
+readTransaction key = \schema -> return ""
+
+clearTransaction :: SchemaTransaction
+clearTransaction  = \schema -> modifyTVar schema clearValues >> return "clear"
+
+clearValues :: Map String String -> Map String String
+clearValues = Map.map (\_ -> "") 
