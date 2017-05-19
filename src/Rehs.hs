@@ -39,7 +39,7 @@ setTransaction key value = \schema -> modifyTVar schema (\map -> Map.insert key 
 readTransaction :: String -> SchemaTransaction
 readTransaction key = \schema -> do
     map <- readTVar schema    
-    return $ Map.findWithDefault "Missing slot" key map
+    return $ Map.findWithDefault "" key map
 
 clearTransaction :: String -> SchemaTransaction
 clearTransaction key = setTransaction key ""
