@@ -24,3 +24,4 @@ parseSlotTransactionCommand ["clear", key]      = Rehs.clearTransaction key
 parseSlotTransactionCommand ["clear_all"]       = Rehs.clearAllTransaction
 parseSlotTransactionCommand ["reverse", key]    = Rehs.reverseTransaction key
 parseSlotTransactionCommand ["upcase", key]     = Rehs.upcaseTransaction key
+parseSlotTransactionCommand ["show"]            = Rehs.showTransaction
