@@ -9,7 +9,7 @@ module Rehs.Commands (
     parseTransactionLine) where
 
 import Data.List.Split (splitOn)
-import Rehs as Rehs
+import Rehs
 
 type Command = [String]
 
