@@ -81,11 +81,11 @@ The goal of this project is to extend this code so that the previous commands wo
 
 ## Tips
 
-Don't do this: https://www.reddit.com/r/haskell/comments/25xyts/how_about_an_stm_hash_table_implementation/. Instead, we suggest implementing the table as an inmutable list of string keys and (mutable) `TVar` values. The `schema` operation may destroy all data.
-
-Also, don't try to change `Main` and `Server` alot. Intead, focus on the `Rehs` module, which declares its transactional primitive functions, and `Commands` module, which parses strings into transactions.
-
-Finally, notice that `Rehs.Server` and `Rehs.IO` actually deal with `IO`, but other modules just work with `STM` and pure functions. If you start to write many `IO` functions, you are probably doing it wrong.
+* Read this: https://www.reddit.com/r/haskell/comments/25xyts/how_about_an_stm_hash_table_implementation/. 
+* You can implement the table as an inmutable list of string keys and (mutable) `TVar` values.
+* The `schema` operation may destroy all data.
+* don't try to change `Main` and `Server` alot. Intead, focus on the `Rehs` module, which declares its transactional primitive functions, and `Commands` module, which parses strings into transactions.
+* notice that `Rehs.Server` and `Rehs.IO` actually deal with `IO`, but other modules just work with `STM` and pure functions. If you start to write many `IO` functions, you are probably doing it wrong.
 
 ## Going further
 
