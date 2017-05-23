@@ -6,14 +6,16 @@
 ------------------------------------------------------------
 
 module Rehs.IO (
-    newTableIO,
-    updateAndReadSlotIO)where
+    newSchemaIO,
+    performAndReadTransactionIO)where
 
-import Rehs
-import Control.Concurrent.STM
+import           Control.Concurrent.STM
+import           Data.Maybe             (fromMaybe)
+import           Rehs                   (Schema, SchemaTransaction, Value,
+                                         newSchema)
 
-newTableIO :: IO Table
-newTableIO = atomically newTable
+newSchemaIO :: IO Schema
+newSchemaIO = atomically newSchema
 
-updateAndReadSlotIO :: SlotTransaction -> Table -> IO String
-updateAndReadSlotIO transaction = atomically . updateAndReadSlot transaction
+performAndReadTransactionIO :: SchemaTransaction -> Schema -> IO String
+performAndReadTransactionIO transaction = fmap (fromMaybe "") . atomically . transaction
