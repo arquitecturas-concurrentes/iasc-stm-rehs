@@ -9,11 +9,13 @@ module Rehs.IO (
     newSchemaIO,
     performAndReadTransactionIO)where
 
-import Rehs
-import Control.Concurrent.STM
+import           Control.Concurrent.STM
+import           Data.Maybe             (fromMaybe)
+import           Rehs                   (Schema, SchemaTransaction, Value,
+                                         newSchema)
 
 newSchemaIO :: IO Schema
 newSchemaIO = atomically newSchema
 
 performAndReadTransactionIO :: SchemaTransaction -> Schema -> IO String
-performAndReadTransactionIO transaction = atomically . transaction
+performAndReadTransactionIO transaction = fmap (fromMaybe "") . atomically . transaction

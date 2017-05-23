@@ -7,6 +7,7 @@
 module Rehs (
    Schema,
    SchemaTransaction,
+   Value,
    newSchema,
    setSchema,
    readTransaction,
@@ -17,56 +18,67 @@ module Rehs (
    clearAllTransaction,
    showTransaction) where
 
-import Control.Concurrent.STM
-import Data.Map.Strict as Map
-import Data.Char
+import           Control.Concurrent.STM
+import           Data.Char              (toUpper)
+import           Data.Map.Strict        as Map
 
-type Schema = TVar (Map String String)
-type SchemaTransaction = Schema -> STM String
+type Key = String
+type Value = Maybe String
+
+type Store = Map Key Value
+type Schema = TVar Store
+
+type SchemaTransaction = Schema -> STM Value
 
 newSchema :: STM Schema
-newSchema = newTVar Map.empty
+newSchema = newTVar empty
 
-setSchema :: [String] -> SchemaTransaction
-setSchema keys = \schema -> do 
-    let newMap = Map.fromList . zip keys . repeat $ ""
-    writeTVar schema newMap
-    return "<OK>"
+setSchema :: [Key] -> SchemaTransaction
+setSchema keys schema = do
+    writeTVar schema . Map.fromList $ [(key, Nothing) | key <- keys]
+    return $ Just "<OK>"
 
-setTransaction :: String -> String -> SchemaTransaction
-setTransaction key value = \schema -> modifyTVar schema (\map -> Map.insert key value map) >> return value
+setTransaction :: Key -> Value -> SchemaTransaction
+setTransaction key value schema = do
+    modifyTVar schema $ Map.insert key value
+    return value
 
-readTransaction :: String -> SchemaTransaction
-readTransaction key = \schema -> do
-    map <- readTVar schema    
-    return $ Map.findWithDefault "" key map
+readTransaction :: Key -> SchemaTransaction
+readTransaction key schema = do
+    store <- readTVar schema
+    return $ Map.findWithDefault Nothing key store
 
-reverseTransaction :: String -> SchemaTransaction
-reverseTransaction key = \schema -> do
+mapTransaction :: ( String -> String ) -> Key -> SchemaTransaction
+mapTransaction f key schema = do
     value <- readTransaction key schema
-    return $ reverse value
+    setTransaction key (f <$> value) schema
 
-upcaseTransaction :: String -> SchemaTransaction
-upcaseTransaction key = \schema -> do
-    value <- readTransaction key schema
-    return $ Prelude.map toUpper value
+reverseTransaction :: Key -> SchemaTransaction
+reverseTransaction = mapTransaction reverse
 
-clearTransaction :: String -> SchemaTransaction
-clearTransaction key = setTransaction key ""
+upcaseTransaction :: Key -> SchemaTransaction
+upcaseTransaction = mapTransaction $ Prelude.map toUpper
+
+clearTransaction :: Key -> SchemaTransaction
+clearTransaction key = setTransaction key Nothing
 
 clearAllTransaction :: SchemaTransaction
-clearAllTransaction = \schema -> modifyTVar schema clearValues >> return ""
-
-clearValues :: Map String String -> Map String String
-clearValues = Map.map (\_ -> "") 
+clearAllTransaction schema = do
+    modifyTVar schema $ Map.map (const Nothing)
+    return Nothing
 
 showTransaction :: SchemaTransaction
 showTransaction schema = do
     map <- readTVar schema
-    return $ showStore map
+    return . Just . showStore $ map
 
-showStore :: Map String String -> String
-showStore map 
-    | Map.null map = "Empty Schema!"
-    | otherwise = (++ "\n==="). Prelude.foldl (\result (key, value) -> result ++ "\n|--> " ++ key ++ ": " ++ value) "===\nSchema:" $ tuples
-    where tuples = toList map
+showStore :: Store -> String
+showStore map
+    | Map.null map = "Empty Store!"
+    | otherwise = concat [header, Prelude.foldl showSlot "Store:\n" . toList $ map, footer]
+    where header = "====\n"
+          footer = "===="
+
+showSlot :: String -> (Key, Value) -> String
+showSlot previous (key, Nothing) = showSlot previous (key, Just "")
+showSlot previous (key, Just value) = previous ++ "|---> "  ++ key ++ ": " ++ value ++ "\n"

@@ -6,16 +6,18 @@
 
 module Rehs.Server where
 
-import Control.Concurrent (forkFinally)
-import Control.Monad      (forever, void)
-import Network            (Socket, PortID(..), accept, listenOn, withSocketsDo)
-import Text.Printf        (printf)
-import System.IO          (Handle(..), BufferMode(..),
-                           hGetLine, hClose, hPutStrLn, hSetNewlineMode, universalNewlineMode, hSetBuffering)
+import           Control.Concurrent (forkFinally)
+import           Control.Monad      (forever, void)
+import           Network            (PortID (..), Socket, accept, listenOn,
+                                     withSocketsDo)
+import           System.IO          (BufferMode (..), Handle (..), hClose,
+                                     hGetLine, hPutStrLn, hSetBuffering,
+                                     hSetNewlineMode, universalNewlineMode)
+import           Text.Printf        (printf)
 
-import Rehs (Schema)
-import Rehs.IO (newSchemaIO, performAndReadTransactionIO)
-import Rehs.Commands (parseTransactionLine)
+import           Rehs               (Schema)
+import           Rehs.Commands      (parseTransactionLine)
+import           Rehs.IO            (newSchemaIO, performAndReadTransactionIO)
 
 startServer :: Int -> IO ()
 startServer port = withSocketsDo $ do
@@ -55,4 +57,3 @@ handleCommands handle schema = do
 
     updatedSlot <- performAndReadTransactionIO transaction schema
     hPutStrLn handle updatedSlot
-
