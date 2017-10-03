@@ -17,9 +17,9 @@ executable ping-pong-hs
   hs-source-dirs:   src
   main-is:          Main.hs
 
-  build-depends:    async      ==2.0.2
-                  , base       >=4.0 && <5.0
-                  , containers ==0.5.0.0
-                  , network    ==2.4.1.2
-                  , stm        ==2.4.4
-                  , split      ==0.2.2
+  build-depends:    async
+                  , base
+                  , containers
+                  , network   
+                  , stm
+                  , split

@@ -1,3 +1,7 @@
+## Requirements
+
+You need to install `stack` first. 
+
 ## Starting the server
 
 Simply run `./start.sh`. This command will compile and start your project.
